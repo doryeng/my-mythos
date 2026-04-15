@@ -4,42 +4,49 @@ import { Sparkles, Book, Compass, Moon, Sun, Send, Shield, Info, ExternalLink } 
 import axios from 'axios';
 
 const App = () => {
+  // --- Local Data (Integrated for GitHub Pages Compatibility) ---
+  const initialArchetypes = [
+    { id: 'hero', name: 'The Hero', culture: 'Universal', color: '#EF4444', icon: '⚔️', description: 'The brave adventurer seeking glory and transformation.' },
+    { id: 'sage', name: 'The Sage', culture: 'Greek', color: '#3B82F6', icon: '📜', description: 'The wise teacher who seeks truth and understanding.' },
+    { id: 'creator', name: 'The Creator', culture: 'Norse', color: '#A855F7', icon: '🔨', description: 'The innovative spirit who brings new things into being.' },
+    { id: 'lover', name: 'The Lover', culture: 'Roman', color: '#EC4899', icon: '❤️', description: 'The passionate soul who values intimacy and beauty.' },
+    { id: 'jester', name: 'The Jester', culture: 'Celtic', color: '#EAB308', icon: '🎭', description: 'The trickster who uses humor to speak truth to power.' },
+    { id: 'magician', name: 'The Magician', culture: 'Egyptian', color: '#6366F1', icon: '🔮', description: 'The visionary who transforms the world through knowledge.' }
+  ];
+
+  const initialWisdom = [
+    { title: 'Odysseus & The Sirens', culture: 'Greek', message: 'Sometimes the greatest strength is knowing when to resist temptation.', application: 'Career decisions, avoiding distractions' },
+    { title: 'The Phoenix Rising', culture: 'Egyptian', message: 'Every ending contains the seed of a new beginning.', application: 'Personal transformation, overcoming setbacks' },
+    { title: "Thor's Hammer", culture: 'Norse', message: 'True power comes from worthiness, not just strength.', application: 'Leadership development, earning respect' }
+  ];
+
   const [activeTab, setActiveTab] = useState('oracle');
   const [darkMode, setDarkMode] = useState(true);
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [archetypes, setArchetypes] = useState([]);
-  const [wisdom, setWisdom] = useState([]);
+  
+  // No longer fetching from backend
+  const archetypes = initialArchetypes;
+  const wisdom = initialWisdom;
 
-  useEffect(() => {
-    // Fetch initial data
-    const fetchData = async () => {
-      try {
-        const [archRes, wisdomRes] = await Promise.all([
-          axios.get('/api/archetypes'),
-          axios.get('/api/wisdom')
-        ]);
-        setArchetypes(archRes.data);
-        setWisdom(wisdomRes.data);
-      } catch (error) {
-        console.error('Error fetching mythos data:', error);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const handleAskOracle = async () => {
+  const handleAskOracle = () => {
     if (!question.trim()) return;
     setLoading(true);
-    try {
-      const response = await axios.post('/api/oracle', { question });
-      setResult(response.data);
-    } catch (error) {
-      console.error('Oracle consultation failed:', error);
-    } finally {
+    
+    // Simulate divine processing locally
+    setTimeout(() => {
+      const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
+      const randomWisdom = wisdom[Math.floor(Math.random() * wisdom.length)];
+
+      setResult({
+        archetype: randomArchetype,
+        wisdom: randomWisdom,
+        guidance: `Channel your inner ${randomArchetype.name}. ${randomWisdom.message}`,
+        confidence: 85 + Math.floor(Math.random() * 15)
+      });
       setLoading(false);
-    }
+    }, 1500);
   };
 
   return (
