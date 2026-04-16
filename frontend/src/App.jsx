@@ -7,29 +7,65 @@ import {
 } from 'lucide-react';
 
 // --- Secure Core Algorithm (Mock Security Layer) ---
+// --- MythIC: Mythological Intelligence Core (V3 Semantic Engine) ---
+const INTELLIGENCE_ENGINE = {
+  analyze: (input) => {
+    const text = input.toLowerCase();
+    const categories = {
+      conflict: ['정세', '불안', '전쟁', '갈등', '싸움', 'politics', 'war', 'tensions'],
+      economy: ['경제', '돈', '시장', '투자', 'finance', 'market', 'money'],
+      transformation: ['변화', '미래', '어떻게', '지속', 'future', 'change', 'duration'],
+      self: ['나', '심리', '고민', 'mbti', 'self', 'psychology']
+    };
+
+    let dominant = 'transformation';
+    for (const [key, keywords] of Object.entries(categories)) {
+      if (keywords.some(k => text.includes(k))) {
+        dominant = key;
+        break;
+      }
+    }
+    return dominant;
+  },
+  
+  getStrategicInsight: (category, archs, wisdoms) => {
+    const mappings = {
+      conflict: { archId: 'hero', wisdomIdx: 2, guidance: "현 정세는 결속과 희생을 요구하는 '펜리스의 사슬' 시기에 가깝습니다. 단순한 힘의 대결이 아니라 보이지 않는 전략적 인내가 지속될 것입니다." },
+      economy: { archId: 'alchemist', wisdomIdx: 1, guidance: "시장의 변동성은 연금술적 변형의 과정입니다. 현재의 손실을 새로운 자산의 형태로 재구성하는 지혜가 필요합니다." },
+      transformation: { archId: 'sage', wisdomIdx: 0, guidance: "지속 기간에 대한 의문은 본질을 흐립니다. 이 혼란은 새로운 질서가 구축되기 위한 필연적인 '이카루스의 낙하' 과정입니다." },
+      self: { archId: 'magician', wisdomIdx: 1, guidance: "외부의 파도가 아닌 당신 내부의 현실 창조자(Magician)에게 집중하십시오. 당신의 비전이 현실의 압력을 이길 것입니다." }
+    };
+    
+    const config = mappings[category];
+    return {
+      archetype: archs.find(a => a.id === config.archId) || archs[0],
+      wisdom: wisdoms[config.wisdomIdx],
+      guidance: config.guidance
+    };
+  }
+};
+
 const SECURITY_ENGINE = {
-  sanitize: (str) => str.replace(/[^\w\s\?\!]/gi, '').slice(0, 200),
-  encrypt: (data) => btoa(encodeURIComponent(JSON.stringify(data))), // Simulation of secure storage
+  sanitize: (str) => str.replace(/[^\w\s\?\!\uAC00-\uD7A3]/gi, '').slice(0, 500),
+  encrypt: (data) => btoa(encodeURIComponent(JSON.stringify(data))),
   decrypt: (hash) => JSON.parse(decodeURIComponent(atob(hash)))
 };
 
 const App = () => {
+  // ... (existing state)
   const [activeTab, setActiveTab] = useState('oracle');
   const [darkMode, setDarkMode] = useState(true);
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [isSecureMode, setIsSecureMode] = useState(true);
-  const [showVault, setShowVault] = useState(false);
-  const [vaultData, setVaultData] = useState([]);
+  const [reportMode, setReportMode] = useState(false); // New Premium Feature
 
-  // --- Premium Mythos Database (Enhanced for Subscription Value) ---
+  // ... (existing data)
   const archetypes = useMemo(() => [
     { id: 'hero', name: 'The Eternal Hero', culture: 'Global', color: '#EF4444', icon: <Swords size={32} />, description: 'The force of evolution and conquest over chaos.', strength: 95, rarity: 'Common' },
     { id: 'sage', name: 'The Cosmic Sage', culture: 'Universal', color: '#3B82F6', icon: <Scroll size={32} />, description: 'Keeper of forbidden knowledge and ultimate truth.', strength: 88, rarity: 'Epic' },
     { id: 'alchemist', name: 'The Void Alchemist', culture: 'Hermetic', color: '#A855F7', icon: <FlaskConical size={32} />, description: 'Master of transformation, changing base fears into golden will.', strength: 92, rarity: 'Legendary' },
-    { id: 'magician', name: 'The Quantum Magician', culture: 'Digital', color: '#6366F1', icon: <Zap size={32} />, description: 'Architect of reality who bends time and space to their vision.', strength: 98, rarity: 'Mythic' },
-    { id: 'guardian', name: 'The Aegis Guardian', culture: 'Celestial', color: '#10B981', icon: <Shield size={32} />, description: 'Unshakable protector of the balance between worlds.', strength: 91, rarity: 'Rare' }
+    { id: 'magician', name: 'The Quantum Magician', culture: 'Digital', color: '#6366F1', icon: <Zap size={32} />, description: 'Architect of reality who bends time and space to their vision.', strength: 98, rarity: 'Mythic' }
   ], []);
 
   const wisdomDatabase = [
@@ -38,31 +74,37 @@ const App = () => {
     { title: 'The Fenris Chain', culture: 'Ancient Norse', message: 'Greatest threats are often bound by smaller, invisible sacrifices.', lesson: 'Strategy' }
   ];
 
-  // --- Core Proprietary Oracle Algorithm (Encapsulated) ---
+  // --- Core Proprietary Oracle Algorithm (Enhanced V3) ---
   const consultOracle = useCallback(() => {
     if (!question.trim()) return;
     
     setLoading(true);
-    // 1. Input Sanitization (Security Layer)
     const sanitizedQuestion = SECURITY_ENGINE.sanitize(question);
     
-    // 2. Adaptive Calculation (Algorithm Protection)
     setTimeout(() => {
-      const archIndex = Math.floor(Math.random() * archetypes.length);
-      const wisdomIndex = Math.floor(Math.random() * wisdomDatabase.length);
+      // Intelligent Mapping instead of Random
+      const category = INTELLIGENCE_ENGINE.analyze(sanitizedQuestion);
+      const { archetype, wisdom, guidance } = INTELLIGENCE_ENGINE.getStrategicInsight(category, archetypes, wisdomDatabase);
       
       const newResult = {
         id: Date.now(),
-        archetype: archetypes[archIndex],
-        wisdom: wisdomDatabase[wisdomIndex],
+        archetype,
+        wisdom,
+        guidance,
+        category,
         timestamp: new Date().toLocaleTimeString(),
-        hash: SECURITY_ENGINE.encrypt({ q: sanitizedQuestion, a: archIndex })
+        swot: {
+          strength: "High mythic alignment",
+          weakness: "External volatility",
+          opportunity: "Strategic pivoting",
+          threat: "Intellectual stagnation"
+        }
       };
       
       setResult(newResult);
-      setVaultData(prev => [newResult, ...prev.slice(0, 9)]);
       setLoading(false);
-    }, 2000);
+      setReportMode(true); // Automatically show deeper report for extra value
+    }, 2500);
   }, [question, archetypes]);
 
   return (
@@ -123,13 +165,13 @@ const App = () => {
         <header className="px-10 py-8 flex justify-between items-center glass border-b border-white/5 sticky top-0 bg-mythos-900/50">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-              <h1 className="text-2xl font-black tracking-tighter uppercase italic">MythOS <span className="text-indigo-500">v2.0 Gold</span></h1>
+              <span className="w-2 h-2 bg-indigo-500 rounded-full animate-ping"></span>
+              <h1 className="text-2xl font-black tracking-tighter uppercase italic">MythOS <span className="text-indigo-500 text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-fuchsia-500">v3.0 Overlord</span></h1>
             </div>
             <div className="flex gap-4 text-[10px] font-mono opacity-40 uppercase tracking-[0.2em]">
-              <span>Latency: 12ms</span>
-              <span>Enc: SHA-512</span>
-              <span>Status: Synchronized</span>
+              <span>Scenario: Global Instability</span>
+              <span>Sync: Neural_V3</span>
+              <span>Status: Autonomous Intelligence</span>
             </div>
           </div>
           
@@ -158,20 +200,16 @@ const App = () => {
               >
                 <div className="flex flex-col lg:flex-row gap-12 items-center mb-20 text-left">
                   <div className="lg:w-1/2">
-                    <h2 className="text-7xl font-black leading-none mb-8 bg-gradient-to-br from-white via-white to-white/20 bg-clip-text text-transparent">
-                       The Infinite <br /><span className="text-indigo-500">Oracle.</span>
+                    <h2 className="text-8xl font-black leading-[0.85] mb-8 bg-gradient-to-br from-white via-white to-white/20 bg-clip-text text-transparent italic tracking-tighter">
+                       Strategic <br /><span className="text-indigo-500 text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 drop-shadow-[0_0_20px_rgba(99,102,241,0.5)]">Intelligence.</span>
                     </h2>
-                    <p className="text-xl opacity-60 font-light leading-relaxed mb-6">
-                      저희 기술은 수천 년의 신화적 데이터를 융합하여 당신의 무의식적 경로를 탐색합니다. 오직 선별된 원형만이 당신의 해답을 제시할 것입니다.
+                    <p className="text-2xl opacity-60 font-light leading-relaxed mb-10 italic">
+                      현대 사회의 복잡한 정세를 신화적 원형으로 해독합니다. <br />단순한 데이터가 아닌 <span className="text-white font-medium border-b border-indigo-500">통찰(Insight)</span>을 경험하십시오.
                     </p>
                     <div className="flex gap-4">
-                      <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-                        <Lock size={14} className="text-indigo-400" />
-                        <span className="text-xs font-mono uppercase">Private Session</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-                        <Shield size={14} className="text-indigo-400" />
-                        <span className="text-xs font-mono uppercase">IP Protected</span>
+                      <div className="flex items-center gap-3 px-6 py-3 bg-indigo-600/10 rounded-2xl border border-indigo-500/20">
+                        <Shield size={16} className="text-indigo-400" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Audit v3 Active</span>
                       </div>
                     </div>
                   </div>
@@ -204,62 +242,92 @@ const App = () => {
                   </div>
                 </div>
 
-                {/* Secure Result Visualization */}
+                {/* Secure Strategic Report (MythOS v3 Premium) */}
                 {result && (
                   <motion.div 
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="relative"
+                    className="relative mt-20"
                   >
-                    <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-[50px] blur opacity-30 animate-pulse"></div>
-                    <div className="relative glass-card p-16 rounded-[50px] overflow-hidden">
-                       <div className="flex flex-col lg:flex-row gap-16 items-start">
-                          <div className="lg:w-1/3 w-full">
-                             <div 
-                                className="aspect-square rounded-[40px] flex items-center justify-center text-white/90 shadow-2xl relative overflow-hidden group mb-6"
-                                style={{ background: `linear-gradient(135deg, ${result.archetype.color}, #000)` }}
-                             >
-                                <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute inset-0 opacity-20 border-[20px] border-white/20 rounded-full scale-150"></motion.div>
-                                <div className="relative z-10 transform group-hover:scale-125 transition-transform duration-700">
-                                  {result.archetype.icon}
-                                </div>
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-[60px] blur-xl opacity-20"></div>
+                    <div className="relative glass-card p-12 lg:p-20 rounded-[60px] overflow-hidden border border-white/10">
+                       
+                       {/* Header: Intelligence Mapping Info */}
+                       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6 border-b border-white/5 pb-10">
+                          <div>
+                             <div className="flex items-center gap-3 mb-2">
+                                <div className="w-10 h-1 bg-indigo-500 rounded-full"></div>
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400">Contextual Analysis Report</span>
                              </div>
-                             <div className="px-6 py-4 bg-white/5 rounded-3xl border border-white/10">
-                                <div className="flex justify-between text-[10px] font-mono opacity-50 uppercase mb-2">
-                                  <span>Potency</span>
-                                  <span>{result.archetype.strength}%</span>
+                             <h3 className="text-4xl font-black italic tracking-tighter">THE {result.category.toUpperCase()} PROTOCOL</h3>
+                          </div>
+                          <div className="flex gap-4">
+                             <div className="glass px-6 py-4 rounded-3xl text-center">
+                                <p className="text-[10px] opacity-40 uppercase mb-1">Confidence Score</p>
+                                <p className="text-xl font-mono font-bold text-indigo-400">98.4%</p>
+                             </div>
+                             <div className="glass px-6 py-4 rounded-3xl text-center border-indigo-500/20">
+                                <p className="text-[10px] opacity-40 uppercase mb-1">Sync Date</p>
+                                <p className="text-xl font-mono font-bold">{result.timestamp}</p>
+                             </div>
+                          </div>
+                       </div>
+
+                       <div className="grid grid-cols-1 xl:grid-cols-3 gap-16">
+                          {/* Left: Archetype Avatar */}
+                          <div className="xl:col-span-1">
+                             <div 
+                                className="aspect-[4/5] rounded-[50px] flex flex-col items-center justify-center p-10 shadow-2xl relative overflow-hidden group"
+                                style={{ background: `linear-gradient(225deg, ${result.archetype.color}44, #000)` }}
+                             >
+                                <motion.div animate={{ rotate: -360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }} className="absolute inset-0 opacity-10 border-[1px] border-white/40 rounded-full scale-150"></motion.div>
+                                <div className="relative z-10 text-white mb-8 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                                  {React.cloneElement(result.archetype.icon, { size: 100 })}
                                 </div>
-                                <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                                   <div className="h-full bg-indigo-400" style={{ width: `${result.archetype.strength}%` }}></div>
-                                </div>
+                                <h4 className="relative z-10 text-3xl font-black italic mb-2">{result.archetype.name}</h4>
+                                <p className="relative z-10 text-xs font-mono opacity-60 tracking-widest">{result.archetype.culture} ORIGIN</p>
                              </div>
                           </div>
                           
-                          <div className="lg:w-2/3">
-                             <div className="flex items-center gap-4 mb-4">
-                               <h3 className="text-4xl font-black uppercase italic text-indigo-400">{result.archetype.name}</h3>
-                               <span className="px-3 py-1 bg-white text-black text-[10px] font-black rounded-full uppercase tracking-tighter">
-                                 {result.archetype.rarity} Insight
-                               </span>
+                          {/* Right: Deep Strategic Content */}
+                          <div className="xl:col-span-2 space-y-12">
+                             <div>
+                                <h4 className="text-sm font-black text-indigo-400 uppercase tracking-widest mb-6 flex items-center gap-3">
+                                   <Zap size={16} /> Semantic Guidance
+                                </h4>
+                                <p className="text-3xl font-light leading-tight text-white/90 italic">
+                                   "{result.guidance}"
+                                </p>
                              </div>
-                             <p className="text-4xl font-light leading-tight mb-10 opacity-90">
-                               "{result.guidance}"
-                             </p>
-                             
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="p-8 glass-card rounded-4xl bg-white/5">
-                                   <h4 className="text-xs font-black text-indigo-300 uppercase tracking-widest mb-4">The Archive Record</h4>
-                                   <p className="text-lg font-bold mb-2">{result.wisdom.title}</p>
-                                   <p className="opacity-60 text-sm leading-relaxed mb-4">{result.wisdom.message}</p>
-                                   <span className="text-[10px] font-mono opacity-30 uppercase">{result.wisdom.culture} Library</span>
+
+                             {/* SWOT Analysis Grid */}
+                             <div className="grid grid-cols-2 gap-4">
+                                {[
+                                  { label: 'Strengths', val: result.swot.strength, color: 'text-green-400' },
+                                  { label: 'Weaknesses', val: result.swot.weakness, color: 'text-red-400' },
+                                  { label: 'Opportunities', val: result.swot.opportunity, color: 'text-blue-400' },
+                                  { label: 'Threats', val: result.swot.threat, color: 'text-yellow-400' }
+                                ].map(s => (
+                                  <div key={s.label} className="p-6 glass rounded-4xl bg-white/2 hover:bg-white/5 transition-colors border-white/5">
+                                     <p className={`text-[10px] font-black uppercase tracking-widest mb-2 ${s.color}`}>{s.label}</p>
+                                     <p className="text-sm font-bold opacity-80">{s.val}</p>
+                                  </div>
+                                ))}
+                             </div>
+
+                             <div className="p-8 bg-indigo-600/10 rounded-[40px] border border-indigo-500/20">
+                                <div className="flex items-center gap-4 mb-4">
+                                   <Shield className="text-indigo-400" size={20} />
+                                   <h4 className="text-xs font-black uppercase tracking-widest">Executive Summary & Next Steps</h4>
                                 </div>
-                                <div className="p-8 glass-card rounded-4xl bg-white/5">
-                                   <h4 className="text-xs font-black text-indigo-300 uppercase tracking-widest mb-4">Application Vector</h4>
-                                   <p className="text-lg font-bold mb-2">Modern Strategy</p>
-                                   <p className="opacity-60 text-sm leading-relaxed mb-4">이 결과는 다음 영역에 가장 강력한 영향을 미칩니다: <span className="text-white">{result.wisdom.lesson}</span>.</p>
-                                   <button className="text-[10px] font-black uppercase text-indigo-400 border-b border-indigo-400/30 pb-1 flex items-center gap-2">
-                                      Unlock Deep Analysis <Lock size={10} />
-                                   </button>
+                                <p className="text-sm opacity-70 leading-relaxed mb-6">
+                                   본 지능형 신탁 분석에 따르면, `{result.wisdom.title}`의 원리가 현재 상황에 적용되고 있습니다. 
+                                   외부의 격동은 내부의 결속(Cohesion)을 촉진시키기 위한 촉매제로 활용되어야 하며, 
+                                   단기적인 불안정에 함몰되기보다 **{result.wisdom.lesson}** 중심의 장기적 거버넌스를 구축할 것을 권고합니다.
+                                </p>
+                                <div className="flex gap-4">
+                                   <button className="px-6 py-3 bg-white text-black text-[10px] font-black rounded-2xl uppercase tracking-tighter hover:scale-105 transition-transform">Download Strategy PDF</button>
+                                   <button className="px-6 py-3 glass text-[10px] font-black rounded-2xl uppercase tracking-tighter hover:bg-white/10 transition-colors">Compare with News API</button>
                                 </div>
                              </div>
                           </div>
