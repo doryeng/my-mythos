@@ -52,13 +52,15 @@ const SECURITY_ENGINE = {
 };
 
 const App = () => {
-  // ... (existing state)
   const [activeTab, setActiveTab] = useState('oracle');
   const [darkMode, setDarkMode] = useState(true);
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [reportMode, setReportMode] = useState(false); // New Premium Feature
+  const [reportMode, setReportMode] = useState(false);
+  const [isSecureMode, setIsSecureMode] = useState(true);
+  const [showVault, setShowVault] = useState(false);
+  const [vaultData, setVaultData] = useState([]);
 
   // ... (existing data)
   const archetypes = useMemo(() => [
